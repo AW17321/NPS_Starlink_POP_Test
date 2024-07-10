@@ -1,0 +1,26 @@
+#allow pings through firewall
+#https://www.thewindowsclub.com/how-to-allow-pings-icmp-echo-requests-through-windows-firewall
+#Make sure all pings are allowed, I have not narrowed down what specific ping type it should be but allowing echo alone is not it
+from icmplib import traceroute
+import time
+import csv
+
+
+with open(r"ServerPingOutput.CSV", "w+") as output_file:
+    output = csv.writer(output_file) 
+    while (1):
+        with open(r"Servers.txt") as file:
+            for name in file:
+                print(name)
+                name = name.strip()
+                hops = traceroute(name)
+                last_distance = 0
+                for hop in hops:
+                    currenttime = time.time()
+                    ttl = hop.distance
+                    address = hop.address
+                    rtt = hop.avg_rtt
+                    
+                    print(f'{ttl}    {address}    {rtt} ms')#print out all the hops
+                    output.writerow([name, ttl,address,rtt, currenttime])
+                    last_distance = hop.distance
